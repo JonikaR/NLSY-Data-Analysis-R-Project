@@ -1,0 +1,460 @@
+---
+title: "Final project starter script"
+author: "Prof. Chouldechova"
+date: ''
+output: html_document
+---
+
+```{r global-options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+#### Package loading
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(knitr)
+#install.packages("GGally")
+options(scipen=4)
+```
+#### Importing the data
+
+```{r, echo=FALSE}
+# Import starting data
+nlsy <- read_csv("http://www.andrew.cmu.edu/user/achoulde/94842/final_project/nlsy97/nlsy97_Nov2020.csv")
+```
+
+#### Variables present in the base data set
+
+To learn more about the data, you can have a look at the [variable codebook file](http://www.andrew.cmu.edu/user/achoulde/94842/final_project/nlsy97/nlsy97_codebook.txt).
+
+Here's how to rename all the variables to the Question Name abbreviation. **You will want to change the names to be even more descriptive**, but this is a start.
+
+```{r, echo=FALSE}
+# Change column names to question name abbreviations (you will want to change these further)
+colnames(nlsy) <- c("PSTRAN_GPA.01_PSTR",
+    "INCARC_TOTNUM_XRND",
+    "INCARC_AGE_FIRST_XRND",
+    "INCARC_LENGTH_LONGEST_XRND",
+    "PUBID_1997",
+    "YSCH-36400_1997",
+    "YSCH-37000_1997",
+    "YSAQ-010_1997",
+    "YSAQ-369_1997",
+    "YEXP-300_1997",
+    "YEXP-1500_1997",
+    "YEXP-1600_1997",
+    "YEXP-1800_1997",
+    "YEXP-2000_1997",
+    "sex",
+    "KEY_BDATE_M_1997",
+    "KEY_BDATE_Y_1997",
+    "PC8-090_1997",
+    "PC8-092_1997",
+    "PC9-002_1997",
+    "PC12-024_1997",
+    "PC12-028_1997",
+    "CV_AGE_12/31/96_1997",
+    "CV_BIO_MOM_AGE_CHILD1_1997",
+    "CV_BIO_MOM_AGE_YOUTH_1997",
+    "CV_CITIZENSHIP_1997",
+    "CV_ENROLLSTAT_1997",
+    "CV_HH_NET_WORTH_P_1997",
+    "CV_YTH_REL_HH_CURRENT_1997",
+    "CV_MSA_AGE_12_1997",
+    "CV_URBAN-RURAL_AGE_12_1997",
+    "CV_SAMPLE_TYPE_1997",
+    "CV_HGC_BIO_DAD_1997",
+    "CV_HGC_BIO_MOM_1997",
+    "CV_HGC_RES_DAD_1997",
+    "CV_HGC_RES_MOM_1997",
+    "race",
+    "YSCH-6800_1998",
+    "YSCH-7300_1998",
+    "YSAQ-372B_1998",
+    "YSAQ-371_2000",
+    "YSAQ-282J_2002",
+    "YSAQ-282Q_2002",
+    "CV_HH_NET_WORTH_Y_2003",
+    "CV_BA_CREDITS.01_2004",
+    "YSAQ-000B_2004",
+    "YSAQ-373_2004",
+    "YSAQ-369_2005",
+    "CV_BIO_CHILD_HH_2007",
+    "YTEL-52~000001_2007",
+    "YTEL-52~000002_2007",
+    "YTEL-52~000003_2007",
+    "YTEL-52~000004_2007",
+    "CV_BIO_CHILD_HH_2009",
+    "CV_COLLEGE_TYPE.01_2011",
+    "CV_INCOME_FAMILY_2011",
+    "CV_HH_SIZE_2011",
+    "CV_HH_UNDER_18_2011",
+    "CV_HH_UNDER_6_2011",
+    "CV_HIGHEST_DEGREE_1112_2011",
+    "CV_BIO_CHILD_HH_2011",
+    "YSCH-3112_2011",
+    "YSAQ-000A000001_2011",
+    "YSAQ-000A000002_2011",
+    "YSAQ-000B_2011",
+    "YSAQ-360C_2011",
+    "YSAQ-364D_2011",
+    "YSAQ-371_2011",
+    "YSAQ-372CC_2011",
+    "YSAQ-373_2011",
+    "YSAQ-374_2011",
+    "YEMP_INDCODE-2002.01_2011",
+    "CV_BIO_CHILD_HH_2015",
+    "occupation",
+    "YEMP_OCCODE-2002.01_2017",
+    "CV_MARSTAT_COLLAPSED_2017",
+    "YINC-1400_2017",
+    "income",
+    "YINC-1800_2017",
+    "YINC-2400_2017",
+    "YINC-2600_2017",
+    "YINC-2700_2017",
+    "CVC_YTH_REL_HH_AGE6_YCHR_XRND",
+    "CVC_SAT_MATH_SCORE_2007_XRND",
+    "CVC_SAT_VERBAL_SCORE_2007_XRND",
+    "CVC_ACT_SCORE_2007_XRND",
+    "CVC_HH_NET_WORTH_20_XRND",
+    "CVC_HH_NET_WORTH_25_XRND",
+    "CVC_ASSETS_FINANCIAL_25_XRND",
+    "CVC_ASSETS_DEBTS_20_XRND",
+    "CVC_HH_NET_WORTH_30_XRND",
+    "CVC_HOUSE_VALUE_30_XRND",
+    "CVC_HOUSE_TYPE_30_XRND",
+    "CVC_ASSETS_FINANCIAL_30_XRND",
+    "CVC_ASSETS_DEBTS_30_XRND")
+
+### Set all negative values to NA.  
+### THIS IS DONE ONLY FOR ILLUSTRATIVE PURPOSES
+### DO NOT TAKE THIS APPROACH WITHOUT CAREFUL JUSTIFICATION
+#nlsy[nlsy < 0]  <- NA
+
+nlsy <- nlsy %>%
+  rename(marital.status = CV_MARSTAT_COLLAPSED_2017,
+         household.under18 = CV_HH_UNDER_18_2011, 
+         household.size = CV_HH_SIZE_2011)
+
+```
+
+This section of the report analyses association between the variables income (income), sex (sex) with marital status of the respondent (marital.status), number of household members (household.size) and the number of houshold members under 18 (household.under18).
+
+The purpose of this evaluation is to understand how the difference in the income between men and women in the dataset varies across groups with different marital statuses, household sizes and number of household members under 18 and to check for any association between them.
+
+#### Getting to know our two main variables.
+
+In the previous chunk of code we have appropriately renamed the variables corresponding to `sex`, `race`,`marital.status`, `household.size` `income` (as reported on the 2017 survey).  Let's have a quick look at what we're working with.
+
+Statistical summary for variable sex
+```{r, echo=FALSE}
+kable(table(nlsy$sex), align = 'c') 
+summary(nlsy$sex)
+```
+
+
+Statistical summary for variable race
+```{r, echo=FALSE}
+kable(table(nlsy$race), align = 'c')
+summary(nlsy$race)
+```
+
+
+Statistical summary for variable marital status
+```{r, echo=FALSE}
+kable(table(nlsy$marital.status), align = 'c')
+summary(nlsy$marital.status)
+```
+
+
+Statistical summary for variable house hold size
+```{r, echo=FALSE}
+kable(table(nlsy$household.size), align = 'c')
+summary(nlsy$household.size)
+
+```
+
+
+Statistical summary for variable number of house hold members under 18 years age
+```{r, echo=FALSE}
+kable(table(nlsy$household.under18 ), align = 'c')
+summary(nlsy$household.under18)
+
+```
+
+#Recoding for variables
+
+```{r, echo=FALSE}
+nlsy <- nlsy %>% 
+   mutate_at(c("sex"),
+            ~ recode_factor(.x, `1` = "Male",`2` = "Female"))
+
+nlsy <- nlsy %>% 
+   mutate_at(c("race"),
+            ~ recode_factor(.x, `1` = "Black", `2` = "Hispanic", `3` = "Mixed Race (Non-Hispanic)", `4` = "Non-Black / (Non-Hispanic)"))
+
+nlsy <- nlsy %>% 
+   mutate_at(c("marital.status"),
+            ~ recode_factor(.x, `0` = "Never-married", `1` = "Married", `2` = "Seperated", `3` = "Divorced", `4` = "Widowed"))
+
+```
+
+
+You'll want to do some data manipulations to change away from the numeric codings to more interpretable labels. 
+
+```{r, echo=FALSE}
+
+summary(nlsy$income)
+
+# Histogram
+qplot(nlsy$income)
+
+nlsy %>% 
+  group_by(sex) %>% 
+  summarise(mean = mean(income, na.rm = TRUE),
+            sd = sd(income, na.rm = TRUE))
+
+```
+
+*Income*
+
+The income distributing is right-skewed like one might expect.  However, as indicated in the question description, the income variable is *topcoded* at the 2% level.  More precisely,
+
+```{r, echo=FALSE}
+n.topcoded <- with(nlsy, sum(income == max(income, na.rm = TRUE), na.rm = TRUE))
+n.topcoded
+
+```
+
+# In the income data, replacing the responses that indicate Refusal(-1), Don't Know(-2), Invalid Skip(-3), VALID SKIP(-4) and NON-INTERVIEW(-5) with NA.
+
+`r n.topcoded` of the incomes are topcoded to the maximum value of `r max(nlsy$income, na.rm = TRUE)`, which is the average value of the top `r n.topcoded` earners.    You will want to think about how  to deal with this in your analysis.
+
+```{r, echo=FALSE}
+summary(nlsy$income)
+
+outlier.val.income <- summary(nlsy$income)[5] + 1.5 * (summary(nlsy$income)[5] - summary(nlsy$income)[2])
+
+outlier.val.income
+
+```
+
+# Replacing the topcoded income values of income with NA since it is higher than the outlier value for the income distribution
+
+```{r, echo=FALSE}
+
+nlsy$income[nlsy$income == max(nlsy$income, na.rm = TRUE)]  <- NA 
+
+summary(nlsy$income)
+```
+
+# In the income data, replacing the responses that indicate Refusal(-1), Don't Know(-2), Invalid Skip(-3), VALID SKIP(-4) and NON-INTERVIEW(-5) with NA.
+
+```{r, echo=FALSE}
+
+nlsy$income[nlsy$income < 0]  <- NA
+
+# Histogram
+qplot(nlsy$income)
+
+summary(nlsy$income)
+```
+
+*Marital Status*
+
+## Data Cleaning
+
+# Replacing the 63 instances of -3 values in "marital.status" which indicates "Invalid Skip" with NA.
+
+```{r, echo=FALSE}
+
+nlsy$marital.status[nlsy$marital.status == -3]  <- NA
+```
+
+
+#Replacing the 2250 instances of -5 values in "marital.status" which indicates "NON-INTERVIEW" with NA.
+
+```{r, echo=FALSE}
+
+nlsy$marital.status[nlsy$marital.status == -5]  <- NA
+
+
+kable(summary(nlsy$marital.status), align = 'c')
+
+```
+
+
+## Recoding the variable
+
+```{r}
+
+summary(nlsy$marital.status)
+
+nlsy %>%
+  ggplot(aes(y = income  )) + 
+  geom_boxplot(na.rm = TRUE) +
+  facet_wrap(~ marital.status)
+```
+
+From the box plot of marital status and income, we can observe that the median income of the married group is statistically higher than other median income of other groups and for the widowed group it is statistically lower than the median income of other group.
+
+The inter quartile range for the married group is also more than any other group.
+The range of values for the widowed group is least with no outlierrs, all other groups have significant number of outliers.
+
+We will further create a overlaid histogram to observe the differences and bar graph to see the difference in each group of sex.
+
+
+```{r}
+
+nlsy %>%
+  group_by(marital.status) %>%
+  ggplot(aes(x = income, fill = factor(marital.status), alpha = 0.5)) +
+  geom_histogram(position = 'identity', na.rm = TRUE)
+```
+
+```{r} 
+
+nlsy %>% 
+  ggplot(aes(x = marital.status, y = income, fill = as.factor(sex))) +
+  geom_bar(stat = "identity") + 
+  xlab("Marital Status") +
+  ylab("Income in 2017") +
+  ggtitle("Marital status vs Income bar plot")+
+  facet_wrap(~sex) +
+  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) 
+```
+
+In the bar graph we can see that income for male in Never- married and married group is significantly higher than their female counterparts. We do not observe any major difference of income across sex in other groups of marital status.
+
+We will do further analysis to find out more about the association of marital status with income of each sex.
+
+```{r}
+nlsy %>%
+  group_by(marital.status) %>%
+  summarize(mean.income = round(mean(income, na.rm = TRUE), 0), 
+            se.income = round(sd(income, na.rm = TRUE) / sqrt(n()), 0))
+
+```
+
+
+# 1 way anova
+
+```{r}
+aov.marital <- aov(income ~ marital.status, data = nlsy)
+summary(aov.marital)
+
+par(mfrow=c(2,2))
+plot(aov.marital)
+
+```
+<font color="#336600">
+
+The p-value is significant at the 0 level, so the data suggests that there is an association between income and current marital status. In other words, average income varies across the five groups of marital statuses considered in the data. However we would further like to go ahead and find out if the average income varies across the marital statuses for each sex or not.
+We add sex variable to our model and are interested to see if there is a statistical dependence between the marital status and sex that impacs the income.
+
+</font>
+
+#2 way anova
+```{r}
+
+aov.marital.sex <- aov(income ~ marital.status + sex, data = nlsy)
+
+summary(aov.marital.sex)
+
+par(mfrow=c(2,2))
+
+plot(aov.marital.sex)
+
+```
+
+<font color="#336600">
+
+We can conclude that both sex and marital status are statistically different from 0. So we can reject the NULL hypothesis and confirm that the marital status has an impact on the income is different for both sex.
+
+</font>
+
+
+*household*
+
+#data cleaning
+
+```{r}
+
+summary(nlsy$household.under18)
+
+#Replacing the 1561 instances of -5 values in "household.size" which indicates "NON-INTERVIEW" with NA.
+
+nlsy$household.size[nlsy$household.size == -5]  <- NA
+
+#Replacing the 1561 instances of -5 values in "household.under18" which indicates "NON-INTERVIEW" with NA.
+
+nlsy$household.under18[nlsy$household.under18 == -5]  <- NA
+
+#Replacing the 27 instances of -3 values in "household.under18" which indicates "Invalid Skip" with NA.
+
+nlsy$household.under18[nlsy$household.under18 == -3]  <- NA
+
+
+summary(nlsy$household.size)
+summary(nlsy$household.under18)
+```
+
+# finding associations of houshold size with income across each group of sex
+
+```{r}
+lm.hh <- lm(data = nlsy, income~household.size )
+
+summary(lm.hh)
+
+lm.hh.sex <- lm(data = nlsy, income~household.size + sex)
+summary(lm.hh.sex)
+
+lm.hh.sex.interact <- lm(data = nlsy, income~household.size * sex )
+summary(lm.hh.sex.interact)
+
+nlsy %>% 
+  ggplot(aes(x = household.size, y = income, color = factor(sex), na.rm = TRUE )) +
+  xlab("Number of household members") +
+  ylab("Income in 2017") +
+  ggtitle("No.of Household Members interaction with sex")+
+  geom_point()+
+  geom_smooth(method = 'lm', se = FALSE)
+
+```
+Here we carry out a linear model first to see the association of household size with the incom. The p-value is observed to be significant.
+We therefore go ahead with the multiple linear regression of household size with the income of each sex and interaction between household size and sex.
+From the summery of multiple linear regression with interaction of income with number of household members and the plot, we can see that there is a significant negative association of the number of household members under 18 with the income. For females the slope of the association is more i.e. with the increase in the number of household member under 18, the income of females decreases by `r lm.hh.sex.interact$coefficients["sexFemale"]` units more than the males.
+
+# finding associations of number of houshold members under 18 with income across each group of sex
+
+```{r}
+
+lm.hh_18 <- lm(data = nlsy, income~household.under18)
+
+summary(lm.hh_18)
+
+lm.hh_18.sex <- lm(data = nlsy, income~household.under18 + sex)
+
+summary(lm.hh_18.sex)
+
+
+lm.hh_18.sex.interact <- lm(data = nlsy, income~household.under18*sex )
+
+summary(lm.hh_18.sex.interact)
+
+nlsy %>% 
+  ggplot(aes(x = household.under18, y = income, color = factor(sex), na.rm = TRUE )) +
+  xlab("Number of household members under 18") +
+  ylab("Income in 2017") +
+  ggtitle("No.of Household Members interaction under 18 with sex")+
+  geom_point()+
+  geom_smooth(method = 'lm', se = FALSE)
+
+```
+Here we carry out a linear model first to see the association of number of household members under 18  with the income. The p-value is observed to be significant.
+We therefore go ahead with the multiple linear regression of number of household members under 18 with the income of each sex and interaction between household size and sex.
+
+From the summery of multiple linear regression of income with number of household member under 18 and the plot, we can see that there is a significant negative association of the number of household members under 18 with the income. For females the slope of the association is more i.e. with the increase in the number of household member under 18, the income of females decreases by `r lm.hh_18.sex.interact$coefficients["sexFemale"]` units more than the males.
